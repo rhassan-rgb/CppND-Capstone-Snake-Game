@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-std=c++17)
 
-set(CXX_FLAGS "-Wall")
+set(CXX_FLAGS "-Wall" "-pthread")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 project(SDL2Test)
@@ -12,8 +12,23 @@ project(SDL2Test)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS} src)
+find_library(SDL2_TTF_LIBRARY
+    NAMES SDL2_ttf
+    PATHS /usr/lib /usr/local/lib  
+    REQUIRED
+)
 
-add_executable(SnakeGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp)
+# Check if SDL2_ttf library is found
+if(SDL2_TTF_LIBRARY)
+    message(STATUS "SDL2_ttf library found: ${SDL2_TTF_LIBRARY}")
+else()
+    message(FATAL_ERROR "SDL2_ttf library not found")
+endif()
+
+
+include_directories(${SDL2_INCLUDE_DIRS} src)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
+
+add_executable(SnakeGame ${SOURCE_FILES})
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
-target_link_libraries(SnakeGame ${SDL2_LIBRARIES})
+target_link_libraries(SnakeGame ${SDL2_LIBRARIES}  ${SDL2_TTF_LIBRARY})

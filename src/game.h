@@ -6,6 +6,7 @@
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
+#include <memory>
 
 class Game {
  public:
@@ -16,7 +17,7 @@ class Game {
   int GetSize() const;
 
  private:
-  Snake snake;
+  std::shared_ptr<Snake> snake;
   SDL_Point food;
 
   std::random_device dev;

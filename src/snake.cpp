@@ -20,6 +20,7 @@ void Snake::Update() {
 }
 
 void Snake::UpdateHead() {
+  std::lock_guard<std::mutex> lck(_directionMutex);
   switch (direction) {
     case Direction::kUp:
       head_y -= speed;
@@ -76,4 +77,33 @@ bool Snake::SnakeCell(int x, int y) {
     }
   }
   return false;
+}
+void Snake::ChangeDirection(Snake::Direction input, Snake::Direction opposite) 
+{
+  if (direction != opposite || size == 1) direction = input;
+  return;
+}
+void Snake::Control(const KeyStroke &key)
+{
+  std::lock_guard<std::mutex> lck(_directionMutex);
+  switch (key) {
+  case KeyStroke::KEY_UP:
+    ChangeDirection(Direction::kUp, Direction::kDown);
+    break;
+
+  case KeyStroke::KEY_DOWN:
+    ChangeDirection(Snake::Direction::kDown, Snake::Direction::kUp);
+    break;
+
+  case KeyStroke::KEY_LEFT:
+    ChangeDirection(Snake::Direction::kLeft, Snake::Direction::kRight);
+    break;
+
+  case KeyStroke::KEY_RIGHT:
+    ChangeDirection(Snake::Direction::kRight, Snake::Direction::kLeft);
+    break;
+
+  default:
+    return;
+  }
 }

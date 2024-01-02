@@ -3,18 +3,21 @@
 
 #include <vector>
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "snake.h"
 
 class Renderer {
  public:
+  Renderer() = delete;
   Renderer(const std::size_t screen_width, const std::size_t screen_height,
            const std::size_t grid_width, const std::size_t grid_height);
   ~Renderer();
 
-  void Render(Snake const snake, SDL_Point const &food);
+  void Render(Snake const &snake, SDL_Point const &food);
+  virtual void Render() = 0;
   void UpdateWindowTitle(int score, int fps);
 
- private:
+ protected:
   SDL_Window *sdl_window;
   SDL_Renderer *sdl_renderer;
 
