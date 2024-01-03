@@ -5,21 +5,27 @@
 #include <memory>
 #include <vector>
 
-#include "MessageQueue.h"
+#include "MessageBox.h"
 #include "snake.h"
 #include "util.h"
 
 class Controller {
    public:
     Controller();
-    void HandleInput(std::shared_ptr<bool> running,
-                     std::shared_ptr<Snake> snake) const;
-    void InputHandler(std::function<void(KeyStroke)> callback) const;
-    void InputListener(std::shared_ptr<bool> running) const;
+    ~Controller();
+
+    void InputListener();
+    void RegisterHandlerCallBack(std::function<void(KeyStroke)> &&callback);
+    bool isRunning() const;
 
    private:
     std::vector<std::future<void>> _handlers;
-    std::shared_ptr<MessageQueue<KeyStroke>> _keyStrokes;
+    std::shared_ptr<MessageBox<KeyStroke>> _keyStrokes;
+    std::mutex _runningGuard;
+    bool _isRunning;
+
+    bool ListenToKeys();
+    void InputHandler(std::function<void(KeyStroke)> callback);
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef MESSAGEQUEUE_H
-#define MESSAGEQUEUE_H
+#ifndef MessageBox_H
+#define MessageBox_H
 
 #include <condition_variable>
 #include <deque>
@@ -7,18 +7,18 @@
 #include <mutex>
 
 template <typename T>
-class MessageQueue {
+class MessageBox {
    public:
     T receive() {
         // perform queue modification under the lock
         std::unique_lock<std::mutex> uLock(_mutex);
         _cond.wait(uLock, [this] {
-            return !_messages.empty();
+            return (int(_message) != -1);
         });  // pass unique lock to condition variable
 
         // remove last vector element from queue
-        T msg = std::move(_messages.back());
-        _messages.pop_back();
+        T msg = _message;
+        _message = T(-1);
 
         return msg;  // will not be copied due to return value optimization
                      // (RVO) in C++
@@ -30,7 +30,7 @@ class MessageQueue {
         // add vector to queue
         std::cout << "   Message " << int(msg) << " has been sent to the queue"
                   << std::endl;
-        _messages.push_back(std::move(msg));
+        _message = std::move(msg);
         _cond.notify_one();  // notify client after pushing new Vehicle into
                              // vector
     }
@@ -38,7 +38,7 @@ class MessageQueue {
    private:
     std::mutex _mutex;
     std::condition_variable _cond;
-    std::deque<T> _messages;
+    T _message;
 };
 
-#endif /*MESSAGEQUEUE_H*/
+#endif /*MessageBox_H*/
