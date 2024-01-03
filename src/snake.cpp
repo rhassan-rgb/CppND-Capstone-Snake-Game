@@ -93,6 +93,12 @@ void Snake::ChangeDirection(Snake::Direction input, Snake::Direction opposite) {
     return;
 }
 void Snake::Control(const KeyStroke &key) {
+    std::unique_lock<std::mutex> uLock(_activeMutex);
+    if (!_isActive) {
+        return;
+    }
+    uLock.unlock();
+
     std::lock_guard<std::mutex> lck(_directionMutex);
     switch (key) {
         case KeyStroke::KEY_UP:
@@ -100,18 +106,27 @@ void Snake::Control(const KeyStroke &key) {
             break;
 
         case KeyStroke::KEY_DOWN:
-            ChangeDirection(Snake::Direction::kDown, Snake::Direction::kUp);
+            ChangeDirection(Direction::kDown, Direction::kUp);
             break;
 
         case KeyStroke::KEY_LEFT:
-            ChangeDirection(Snake::Direction::kLeft, Snake::Direction::kRight);
+            ChangeDirection(Direction::kLeft, Direction::kRight);
             break;
 
         case KeyStroke::KEY_RIGHT:
-            ChangeDirection(Snake::Direction::kRight, Snake::Direction::kLeft);
+            ChangeDirection(Direction::kRight, Direction::kLeft);
             break;
 
         default:
             return;
     }
+}
+
+void Snake::Activate() {
+    std::lock_guard<std::mutex> lck(_activeMutex);
+    _isActive = true;
+}
+void Snake::Deactivate() {
+    std::lock_guard<std::mutex> lck(_activeMutex);
+    _isActive = false;
 }

@@ -19,13 +19,16 @@ class Controller {
     bool isRunning() const;
 
    private:
-    std::vector<std::future<void>> _handlers;
+    std::future<void> _listener;
+    std::future<void> _handler;
+    std::vector<std::function<void(KeyStroke)>> _callbacks;
     std::shared_ptr<MessageBox<KeyStroke>> _keyStrokes;
     std::mutex _runningGuard;
+    std::mutex _handlersGuard;
     bool _isRunning;
 
     bool ListenToKeys();
-    void InputHandler(std::function<void(KeyStroke)> callback);
+    void InputHandler();
 };
 
 #endif

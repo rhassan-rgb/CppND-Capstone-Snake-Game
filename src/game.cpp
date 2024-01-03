@@ -9,6 +9,7 @@
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
+      welcomeScreen(),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
@@ -22,15 +23,22 @@ void Game::Run(Controller &controller, Renderer &renderer,
     Uint32 frame_end;
     Uint32 frame_duration;
     int frame_count = 0;
+    welcomeScreen.Activate();
+
+    snake.Deactivate();
+
     controller.RegisterHandlerCallBack(std::move(snake.controlCallback));
+    controller.RegisterHandlerCallBack(
+        std::move(welcomeScreen.controlCallback));
 
     while (controller.isRunning()) {
         frame_start = SDL_GetTicks();
-
+        welcomeScreen.Update();
         // Input, Update, Render - the main game loop.
-
+        renderer.Render(welcomeScreen);
+        // snake.Activate();
         Update();
-        renderer.Render(snake, food);
+        // renderer.Render(snake, food);
 
         frame_end = SDL_GetTicks();
 

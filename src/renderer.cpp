@@ -10,6 +10,9 @@ Renderer::Renderer(const std::size_t screen_width,
       screen_height(screen_height),
       grid_width(grid_width),
       grid_height(grid_height) {
+    _normalColor = {255, 255, 255};
+    _selectedColor = {255, 0, 0};  // Red for selected text
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize.\n";
@@ -38,6 +41,7 @@ Renderer::Renderer(const std::size_t screen_width,
         std::cerr << "Renderer could not be created.\n";
         std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
     }
+    _font = TTF_OpenFont("../src/arial.ttf", 28);
 }
 
 Renderer::~Renderer() {
@@ -82,6 +86,34 @@ void Renderer::Render(Snake const &snake, SDL_Point const &food) {
 
     // Update Screen
     SDL_RenderPresent(sdl_renderer);
+}
+void Renderer::Render(WelcomeScreen const &screen) {
+    std::vector<MenuItem> currentScreenItems = screen.GetScreenContext();
+    int x(100);
+    int y(100);
+
+    for (auto &item : currentScreenItems) {
+        drawText(item.ToString(), x, y, item.IsSelected());
+        x += 100;
+        y += 100;
+        // std::cout << item.ToString() << std::endl;
+    }
+    SDL_RenderPresent(sdl_renderer);
+}
+
+void Renderer::drawText(const std::string &text, int x, int y, bool selected) {
+    SDL_Color textColor = selected ? _selectedColor : _normalColor;
+    SDL_Surface *surface = TTF_RenderText_Solid(_font, text.c_str(), textColor);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
+
+    int textWidth = surface->w;
+    int textHeight = surface->h;
+
+    SDL_Rect destRect = {x, y, textWidth, textHeight};
+    SDL_RenderCopy(sdl_renderer, texture, nullptr, &destRect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
 
 void Renderer::UpdateWindowTitle(int score, int fps) {

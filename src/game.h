@@ -5,6 +5,7 @@
 #include <random>
 
 #include "SDL.h"
+#include "WelcomeScreen.h"
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
@@ -18,6 +19,7 @@ class Game {
     int GetSize() const;
 
    private:
+    WelcomeScreen welcomeScreen;
     Snake snake;
     SDL_Point food;
 

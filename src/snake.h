@@ -19,6 +19,8 @@ class Snake {
     bool SnakeCell(int x, int y);
     Direction direction = Direction::kUp;
     std::function<void(KeyStroke)> controlCallback;
+    void Activate();
+    void Deactivate();
 
     float speed{0.1f};
     int size{1};
@@ -35,7 +37,9 @@ class Snake {
     bool growing{false};
     int grid_width;
     int grid_height;
+    bool _isActive;
     std::mutex _directionMutex;
+    std::mutex _activeMutex;
 };
 
 #endif

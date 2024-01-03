@@ -15,16 +15,18 @@ std::atomic<bool> stopFlag(false);
 
 Controller::Controller() : _keyStrokes(new MessageBox<KeyStroke>) {
     _isRunning = true;
-    _handlers.emplace_back(std::async(&Controller::InputListener, this));
+    _listener = std::async(&Controller::InputListener, this);
+    _handler = std::async(std::launch::async, &Controller::InputHandler, this);
 }
 
-void Controller::InputHandler(std::function<void(KeyStroke)> callback) {
+void Controller::InputHandler() {
     while (true) {
         KeyStroke key = _keyStrokes->receive();
-        callback(key);
-        if (key == KeyStroke::KEY_EXT)  // exit signal, needs to be forwarded
-        {
-            _keyStrokes->send(KeyStroke::KEY_EXT);
+        std::lock_guard<std::mutex> lock(_handlersGuard);
+        for (auto &&callback : _callbacks) {
+            callback(key);
+        }
+        if (KeyStroke::KEY_EXT == key) {
             return;
         }
     }
@@ -79,19 +81,17 @@ void Controller::InputListener() {
 }
 
 void Controller::RegisterHandlerCallBack(
-    std::function<void(KeyStroke)> &&callback)
-
-{
-    _handlers.emplace_back(std::async(std::launch::async, [this, &callback]() {
-        this->InputHandler(callback);
-    }));
+    std::function<void(KeyStroke)> &&callback) {
+    std::lock_guard<std::mutex> lock(_handlersGuard);
+    _callbacks.emplace_back(callback);
 }
 
 bool Controller::isRunning() const { return !stopFlag.load(); }
 
 Controller::~Controller() {
-    for (auto &handler : _handlers) {
-        std::cout << "exiting ..";
-        handler.wait();
-    }
+    _listener.wait();
+    std::cout << "Listener Exit" << std::endl;
+
+    _handler.wait();
+    std::cout << "Handler Exit" << std::endl;
 }
