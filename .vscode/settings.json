@@ -56,5 +56,12 @@
         "semaphore": "cpp",
         "stop_token": "cpp",
         "thread": "cpp"
-    }
+    },
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.defaultFormatter": "xaver.clang-format",
+    "clang-format.style": "file",
+    "C_Cpp.clang_format_style": ".clang-format",
+    "C_Cpp.vcFormat.indent.braces": false,
 }
