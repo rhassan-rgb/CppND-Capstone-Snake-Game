@@ -2,26 +2,27 @@
 #define SCREENMGR_H
 #include <string>
 
+#include "ScreenSM.h"
 #include "renderer.h"
 
-enum class Screens {
-    SCREEN_WELCOME = 0,
-    SCREEN_PLAYER_NAME,
-    SCREEN_LEADER_BOARD,
-    SCREEN_PAUSE_GAME,
-    SCREEN_RESUME_GAME,
-    SCREEN_GAME_START,
-    SCREEN_NEW_GAME,
-    SCREEN_EXIT,
-    TOTAL_ITEMS
-};
+// enum class Screens {
+//     SCREEN_WELCOME = 0,
+//     SCREEN_PLAYER_NAME,
+//     SCREEN_LEADER_BOARD,
+//     SCREEN_PAUSE_GAME,
+//     SCREEN_RESUME_GAME,
+//     SCREEN_GAME_START,
+//     SCREEN_NEW_GAME,
+//     SCREEN_EXIT,
+//     TOTAL_ITEMS
+// };
 
-enum class WelcomeItems {
-    ITEM_NEW_GAME = 0,
-    ITEM_LEADER_BOARD,
-    ITEM_EXIT,
-    TOTAL_ITEMS
-};
+// enum class WelcomeItems {
+//     ITEM_NEW_GAME = 0,
+//     ITEM_LEADER_BOARD,
+//     ITEM_EXIT,
+//     TOTAL_ITEMS
+// };
 
 enum class PauseItems {
     ITEM_RESUME = 0,

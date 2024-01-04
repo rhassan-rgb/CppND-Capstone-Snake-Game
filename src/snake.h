@@ -17,11 +17,9 @@ class Snake {
 
     void GrowBody();
     bool SnakeCell(int x, int y);
-    Direction direction = Direction::kUp;
-    std::function<void(KeyStroke)> controlCallback;
-    void Activate();
-    void Deactivate();
+    void Control(const KeyStroke &key);
 
+    Direction direction = Direction::kUp;
     float speed{0.1f};
     int size{1};
     bool alive{true};
@@ -33,13 +31,9 @@ class Snake {
     void UpdateHead();
     void UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell);
     void ChangeDirection(Direction input, Direction opposite);
-    void Control(const KeyStroke &key);
     bool growing{false};
     int grid_width;
     int grid_height;
-    bool _isActive;
-    std::mutex _directionMutex;
-    std::mutex _activeMutex;
 };
 
 #endif

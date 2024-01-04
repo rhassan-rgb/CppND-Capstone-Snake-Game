@@ -9,7 +9,7 @@
 #include "SDL.h"
 #include "snake.h"
 
-constexpr int KEYBOARD_SAMPLING_RATE = 20;  // ms
+constexpr int KEYBOARD_SAMPLING_RATE = 100;  // ms
 
 std::atomic<bool> stopFlag(false);
 
@@ -24,7 +24,10 @@ void Controller::InputHandler() {
         KeyStroke key = _keyStrokes->receive();
         std::lock_guard<std::mutex> lock(_handlersGuard);
         for (auto &&callback : _callbacks) {
+            std::cout << _callbacks.size() << "handler : " << &callback
+                      << std::endl;
             callback(key);
+            std::cout << "handler : " << &callback << " EXIT" << std::endl;
         }
         if (KeyStroke::KEY_EXT == key) {
             return;
@@ -61,6 +64,9 @@ bool Controller::ListenToKeys() {
                 case SDLK_KP_ENTER:
                     _keyStrokes->send(KeyStroke::KEY_ENTER);
                     break;
+                case SDLK_ESCAPE:
+                    _keyStrokes->send(KeyStroke::KEY_ESC);
+                    break;
                 default:
                     break;
             }
@@ -81,7 +87,7 @@ void Controller::InputListener() {
 }
 
 void Controller::RegisterHandlerCallBack(
-    std::function<void(KeyStroke)> &&callback) {
+    std::function<void(KeyStroke)> &callback) {
     std::lock_guard<std::mutex> lock(_handlersGuard);
     _callbacks.emplace_back(callback);
 }

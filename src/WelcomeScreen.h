@@ -4,20 +4,28 @@
 
 #include "IScreen.h"
 
-class WelcomeScreen : public IScreen {
+class WelcomeScreen : public IScreen<TextScreenItem> {
    public:
     WelcomeScreen();
     ~WelcomeScreen();
-    void Render() override;
-    void Update() override;
+    bool Update() override;
     void Control(const KeyStroke& key) override;
     void Activate() override;
     void Deactivate() override;
-    const std::vector<MenuItem>& GetScreenContext() const override;
+    int GetSelection() override;
+    std::string GetTitle() override;
+    const std::vector<TextScreenItem>& GetScreenContext() const;
 
    private:
-    int _currentItem;
-    std::vector<MenuItem> _menuItems_cpy;
+    enum class Direction { PREVIOUS, NEXT };
+    KeyStroke _pressedKey;
+    std::mutex _pressedKeyLock;
+    std::vector<TextScreenItem> _menuItems_cpy;
+    bool _screenUpdated;
+
+    bool _selectAction;
+    bool handlePressedKey();
+    void changeSelection(Direction dir);
 };
 
 #endif /*WELCOMEESCREEN_H*/

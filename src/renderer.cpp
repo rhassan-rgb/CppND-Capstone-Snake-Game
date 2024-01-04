@@ -87,29 +87,75 @@ void Renderer::Render(Snake const &snake, SDL_Point const &food) {
     // Update Screen
     SDL_RenderPresent(sdl_renderer);
 }
-void Renderer::Render(WelcomeScreen const &screen) {
-    std::vector<MenuItem> currentScreenItems = screen.GetScreenContext();
+
+void Renderer::renderContent(std::vector<TextScreenItem> const &screenContent) {
     int x(100);
     int y(100);
-
-    for (auto &item : currentScreenItems) {
-        drawText(item.ToString(), x, y, item.IsSelected());
+    SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
+    SDL_RenderClear(sdl_renderer);
+    for (auto &item : screenContent) {
+        drawText(item.ToString(), item.GetCoordinates(), item.GetColor());
         x += 100;
         y += 100;
-        // std::cout << item.ToString() << std::endl;
     }
     SDL_RenderPresent(sdl_renderer);
 }
+void Renderer::renderContent(std::vector<ScreenItem> const &screenContent) {
+    SDL_Rect block;
+    block.w = screen_width / grid_width;
+    block.h = screen_height / grid_height;
+    Colors temp = screenContent.at(0).GetColor();
+    Coordinates tempCor = screenContent.at(0).GetCoordinates();
 
-void Renderer::drawText(const std::string &text, int x, int y, bool selected) {
-    SDL_Color textColor = selected ? _selectedColor : _normalColor;
+    // Clear screen
+    SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
+    SDL_RenderClear(sdl_renderer);
+
+    // Render food
+    SDL_SetRenderDrawColor(sdl_renderer, temp.r, temp.g, temp.b, temp.a);
+    block.x = tempCor.x * block.w;
+    block.y = tempCor.y * block.h;
+    SDL_RenderFillRect(sdl_renderer, &block);
+
+    temp = screenContent.at(1).GetColor();
+    tempCor = screenContent.at(1).GetCoordinates();
+    // Render snake's body
+    SDL_SetRenderDrawColor(sdl_renderer, temp.r, temp.g, temp.b, temp.a);
+
+    for (auto item = screenContent.begin() + 1; item < screenContent.end() - 1;
+         ++item) {
+        tempCor = item->GetCoordinates();
+        block.x = tempCor.x * block.w;
+        block.y = tempCor.y * block.h;
+        SDL_RenderFillRect(sdl_renderer, &block);
+    }
+
+    // Render snake's head
+    temp = (screenContent.end() - 1)->GetColor();
+    tempCor = (screenContent.end() - 1)->GetCoordinates();
+    SDL_SetRenderDrawColor(sdl_renderer, temp.r, temp.g, temp.b, temp.a);
+    block.x = tempCor.x * block.w;
+    block.y = tempCor.y * block.h;
+    SDL_RenderFillRect(sdl_renderer, &block);
+
+    // Update Screen
+    SDL_RenderPresent(sdl_renderer);
+}
+
+// void Renderer::Render<T>(IScreen<T> const &screen) {
+
+// }
+
+void Renderer::drawText(const std::string &text, const Coordinates &cord,
+                        const Colors &clrs) {
+    SDL_Color textColor = {.r = clrs.r, .g = clrs.g, .b = clrs.b, .a = clrs.a};
     SDL_Surface *surface = TTF_RenderText_Solid(_font, text.c_str(), textColor);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
 
     int textWidth = surface->w;
     int textHeight = surface->h;
 
-    SDL_Rect destRect = {x, y, textWidth, textHeight};
+    SDL_Rect destRect = {cord.x, cord.y, textWidth, textHeight};
     SDL_RenderCopy(sdl_renderer, texture, nullptr, &destRect);
 
     SDL_FreeSurface(surface);

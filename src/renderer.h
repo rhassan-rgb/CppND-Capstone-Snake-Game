@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <iostream>
 #include <vector>
 
 #include "SDL.h"
@@ -16,7 +17,11 @@ class Renderer {
     ~Renderer();
 
     void Render(Snake const &snake, SDL_Point const &food);
-    void Render(WelcomeScreen const &screen);
+    template <typename T>
+    void Render(std::vector<T> const &screenContent) {
+        ScreenItemType type = screenContent.at(0).GetType();
+        renderContent(screenContent);
+    }
 
     virtual void Render() = 0;
     void UpdateWindowTitle(int score, int fps);
@@ -32,7 +37,10 @@ class Renderer {
     const std::size_t grid_width;
     const std::size_t grid_height;
 
-    void drawText(const std::string &text, int x, int y, bool selected);
+    void drawText(const std::string &text, const Coordinates &cord,
+                  const Colors &clrs);
+    void renderContent(std::vector<TextScreenItem> const &screenContent);
+    void renderContent(std::vector<ScreenItem> const &screenContent);
 };
 
 #endif

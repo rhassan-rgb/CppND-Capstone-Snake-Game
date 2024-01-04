@@ -15,16 +15,17 @@ class Controller {
     ~Controller();
 
     void InputListener();
-    void RegisterHandlerCallBack(std::function<void(KeyStroke)> &&callback);
+    void RegisterHandlerCallBack(std::function<void(KeyStroke)>& callback);
     bool isRunning() const;
 
    private:
     std::future<void> _listener;
     std::future<void> _handler;
     std::vector<std::function<void(KeyStroke)>> _callbacks;
-    std::shared_ptr<MessageBox<KeyStroke>> _keyStrokes;
+    std::unique_ptr<MessageBox<KeyStroke>> _keyStrokes;
     std::mutex _runningGuard;
     std::mutex _handlersGuard;
+    bool _isValid;
     bool _isRunning;
 
     bool ListenToKeys();

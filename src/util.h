@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <string>
+
 enum class KeyStroke {
     KEY_UP = 0,
     KEY_DOWN,
@@ -9,22 +10,66 @@ enum class KeyStroke {
     KEY_RIGHT,
     KEY_ENTER,
     KEY_ESC,
-    KEY_EXT
+    KEY_EXT,
+    KEY_NONE
 };
 
-class MenuItem {
+enum class WelcomeItems {
+    ITEM_WELCOME = 0,
+    ITEM_NEW_GAME,
+    ITEM_LEADER_BOARD,
+    ITEM_EXIT,
+    TOTAL_ITEMS
+};
+
+enum class GameItems {
+    ITEM_GAME = 0,
+    ITEM_GAME_OVER,
+    ITEM_PAUSE_GAME,
+    TOTAL_ITEMS
+};
+enum class ScreenItemType { ITEM_BLOCK = 0, ITEM_TEXT };
+struct Colors {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+};
+
+constexpr Colors SELECTED_COLOR = {.r = 255, .g = 0, .b = 0, .a = 0};
+constexpr Colors UNSELECTED_COLOR = {.r = 255, .g = 255, .b = 255, .a = 0};
+
+struct Coordinates {
+    int x;
+    int y;
+};
+
+class ScreenItem {
    public:
-    MenuItem(std::string content, bool selectable, bool isSelected = false);
-    MenuItem(std::string content);
-    bool IsSelectable();
-    bool IsSelected();
-    void Select();
-    void Unselect();
-    std::string ToString();
+    ScreenItem() = delete;
+    ScreenItem(Coordinates cord);
+    ScreenItem(Coordinates cord, ScreenItemType type);
+    ScreenItemType GetType() const;
+    Colors GetColor() const;
+    Coordinates GetCoordinates() const;
+    void SetColors(Colors clrs);
+    void SetCoordinates(Coordinates coords);
+
+   protected:
+    ScreenItemType _itemType;
+    Colors _colors;
+    Coordinates _coordinates;
+};
+
+class TextScreenItem : public ScreenItem {
+   public:
+    TextScreenItem(Coordinates cord, std::string content, bool selectable);
+    TextScreenItem(Coordinates cord, std::string content);
+    bool IsSelectable() const;
+    std::string ToString() const;
 
    private:
     bool _isSelectable;
-    bool _isSelected;
     std::string _content;
 };
 

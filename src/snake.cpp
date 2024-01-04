@@ -7,9 +7,7 @@ Snake::Snake(int grid_width, int grid_height)
     : grid_width(grid_width),
       grid_height(grid_height),
       head_x(grid_width / 2),
-      head_y(grid_height / 2) {
-    controlCallback = std::bind(&Snake::Control, this, std::placeholders::_1);
-}
+      head_y(grid_height / 2) {}
 
 void Snake::Update() {
     SDL_Point prev_cell{
@@ -29,7 +27,6 @@ void Snake::Update() {
 }
 
 void Snake::UpdateHead() {
-    std::lock_guard<std::mutex> lck(_directionMutex);
     switch (direction) {
         case Direction::kUp:
             head_y -= speed;
@@ -93,13 +90,6 @@ void Snake::ChangeDirection(Snake::Direction input, Snake::Direction opposite) {
     return;
 }
 void Snake::Control(const KeyStroke &key) {
-    std::unique_lock<std::mutex> uLock(_activeMutex);
-    if (!_isActive) {
-        return;
-    }
-    uLock.unlock();
-
-    std::lock_guard<std::mutex> lck(_directionMutex);
     switch (key) {
         case KeyStroke::KEY_UP:
             ChangeDirection(Direction::kUp, Direction::kDown);
@@ -120,13 +110,4 @@ void Snake::Control(const KeyStroke &key) {
         default:
             return;
     }
-}
-
-void Snake::Activate() {
-    std::lock_guard<std::mutex> lck(_activeMutex);
-    _isActive = true;
-}
-void Snake::Deactivate() {
-    std::lock_guard<std::mutex> lck(_activeMutex);
-    _isActive = false;
 }

@@ -1,5 +1,14 @@
 #ifndef SCREEN_SM_H
 #define SCREEN_SM_H
+#include <iostream>
+#include <memory>
+
+#include "IScreen.h"
+#include "WelcomeScreen.h"
+#include "controller.h"
+#include "game.h"
+#include "renderer.h"
+#include "util.h"
 
 enum class Screens {
     SCREEN_WELCOME = 0,
@@ -14,21 +23,19 @@ enum class Screens {
 };
 
 class ScreenSM {
+   public:
+    ScreenSM() = delete;
+    ScreenSM(std::size_t grid_width, std::size_t grid_height);
+    ~ScreenSM();
+    void Update(Renderer &renderer);
+    void Start(Controller &controller, Renderer &renderer,
+               std::size_t target_frame_duration);
+
    private:
+    WelcomeScreen _welcomeScreen;
+    GameScreen _gameScreen;
     Screens _currentScreen;
     Screens _nextScreen;
-
-   public:
-    void setNextScreen(Screens);
-
-    ScreenSM(/* args */);
-    ~ScreenSM();
 };
-
-ScreenSM::ScreenSM(/* args */)
-    : _currentScreen(Screens::SCREEN_WELCOME),
-      _nextScreen(Screens::SCREEN_WELCOME) {}
-
-ScreenSM::~ScreenSM() {}
 
 #endif /*SCREEN_SM_H*/

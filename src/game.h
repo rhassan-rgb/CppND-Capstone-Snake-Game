@@ -4,19 +4,28 @@
 #include <memory>
 #include <random>
 
+#include "IScreen.h"
 #include "SDL.h"
 #include "WelcomeScreen.h"
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
 
-class Game {
+class GameScreen : public IScreen<ScreenItem> {
    public:
-    Game(std::size_t grid_width, std::size_t grid_height);
-    void Run(Controller &controller, Renderer &renderer,
+    GameScreen(std::size_t grid_width, std::size_t grid_height);
+    void Run(Controller& controller, Renderer& renderer,
              std::size_t target_frame_duration);
     int GetScore() const;
     int GetSize() const;
+    bool Update() override;
+    void Control(const KeyStroke& key) override;
+    void Activate() override;
+    void Deactivate() override;
+    int GetSelection() override;
+    virtual std::string GetTitle() override;
+    const std::vector<ScreenItem>& GetScreenContext() const override;
+    std::function<void(KeyStroke)> controlCallback;
 
    private:
     WelcomeScreen welcomeScreen;
@@ -31,7 +40,7 @@ class Game {
     int score{0};
 
     void PlaceFood();
-    void Update();
+    void generateScreenContext(Snake const& snake, SDL_Point const& food);
 };
 
 #endif
