@@ -22,9 +22,12 @@ class LeaderBoard : public IScreen<TextScreenItem> {
     std::mutex _pressedKeyLock;
     std::vector<TextScreenItem> _menuItems_cpy;
     bool _screenUpdated;
+    std::vector<int> _leaderBoard;
 
     bool _selectAction;
     void ReadLeaderBoard();
+    void LoadLeaderBoard();
+
     void changeSelection(Direction dir);
 };
 

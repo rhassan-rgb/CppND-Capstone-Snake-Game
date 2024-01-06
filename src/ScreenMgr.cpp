@@ -64,7 +64,13 @@ bool ScreenSM::Update(Renderer &renderer) {
                 case GameItems::ITEM_GAME_OVER:
                     std::cout << "Game Over Selected" << std::endl;
                     // renderer.Render(_gameScreen.GetScreenContext());
-                    // _welcomeScreen.Deactivate();
+                    _gameScreen.Deactivate();
+                    std::cout << "GameScore=> " << _gameScreen.GetScore()
+                              << std::endl;
+
+                    _leaderBoard.WriteScore(_gameScreen.GetScore());
+                    _previousScreen = _currentScreen;
+                    _currentScreen = Screens::SCREEN_WELCOME;
                     break;
                 default:
                     break;

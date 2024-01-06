@@ -9,7 +9,8 @@ LeaderBoard::LeaderBoard()
     : IScreen("LeaderBoard"),
       _pressedKey(KeyStroke::KEY_NONE),
       _selectAction(false),
-      _screenUpdated(true) {
+      _screenUpdated(true),
+      _leaderBoard(5) {
     _currentItem = 0;
     _menuItems.emplace_back(TextScreenItem({200, 100}, "Leader Board"));
     _menuItems.emplace_back(TextScreenItem({200, 150}, "0"));
@@ -18,7 +19,7 @@ LeaderBoard::LeaderBoard()
     _menuItems.emplace_back(TextScreenItem({200, 300}, "0"));
     _menuItems.emplace_back(TextScreenItem({200, 350}, "0"));
     _menuItems.emplace_back(TextScreenItem({200, 600}, "Press Esc to exit"));
-
+    ReadLeaderBoard();
     controlCallback =
         std::bind(&LeaderBoard::Control, this, std::placeholders::_1);
 }
@@ -30,7 +31,7 @@ bool LeaderBoard::Update() {
     std::lock_guard<std::mutex> lck(_pressedKeyLock);
     if (_screenUpdated || _pressedKey == KeyStroke::KEY_ESC) {
         _screenUpdated = false;
-        ReadLeaderBoard();
+        LoadLeaderBoard();
         return true;
     }
     return false;
@@ -72,23 +73,19 @@ void LeaderBoard::ReadLeaderBoard() {
     // Check if the file is open
     if (!leaderBoardFile.is_open()) {
         std::cerr << "Error opening file." << std::endl;
-        _menuItems.emplace_back(
-            TextScreenItem({200, 400}, "Couldn't Load Leader Board"));
         return;
     }
 
-    // Read numbers from the file into a vector
-    std::vector<int> numbers;
     int num;
-    int counter = 0;
-    while (leaderBoardFile >> num && counter < 5) {
-        std::cout << "Reading Score: " << num << std::endl;
-        numbers.push_back(num);
-        ++counter;
+    int index = 0;
+    while (leaderBoardFile >> num && index < _leaderBoard.size()) {
+        std::cout << "Reading Score: " << index << std::endl;
+        _leaderBoard.at(index) = num;
+        ++index;
     }
 
     // Sort the numbers
-    std::sort(numbers.begin(), numbers.end(), std::greater<int>());
+    std::sort(_leaderBoard.begin(), _leaderBoard.end(), std::greater<int>());
 
     // Clear the file content
     // file.clear();
@@ -101,16 +98,17 @@ void LeaderBoard::ReadLeaderBoard() {
 
     // Close the file
     leaderBoardFile.close();
-    counter = 1;
-    for (auto& number : numbers) {
-        std::cout << "list Score: " << number << std::endl;
-        _menuItems.at(counter).UpdateContent(std::to_string(number));
-        if (++counter > 6) break;
-    }
 
     std::cout << "Numbers read from " << fileName << "." << std::endl;
 }
-
+void LeaderBoard::LoadLeaderBoard() {
+    int counter = 1;
+    for (auto score : _leaderBoard) {
+        std::cout << "list Score: " << score << std::endl;
+        _menuItems.at(counter).UpdateContent(std::to_string(score));
+        counter++;
+    }
+}
 void LeaderBoard::Control(const KeyStroke& key) {
     std::cout << "LeaderBoard::Control lock Active" << std::endl;
     std::unique_lock<std::mutex> uLock(_activeMutex);
@@ -134,39 +132,31 @@ void LeaderBoard::Control(const KeyStroke& key) {
     }
 }
 
-void LeaderBoard::WriteScore(int Score) {
-    const char* fileName = "LeaderBoard.txt";
+void LeaderBoard::WriteScore(int score) {
+    // decide whether to include the score
+    bool newHighScore(false);
+    for (auto& lbScore : _leaderBoard) {
+        if (score > lbScore) {
+            std::swap(score, lbScore);
+        }
+    }
+
+    const char* fileName = "../src/LeaderBoard.txt";
 
     // Open the file for both reading and writing
-    std::fstream leaderBoardFile(fileName, std::ios::in | std::ios::out);
+    std::fstream leaderBoardFile(fileName, std::ios::out);
 
     // Check if the file is open
     if (!leaderBoardFile.is_open()) {
         std::cerr << "Error opening file." << std::endl;
-        _menuItems.emplace_back(
-            TextScreenItem({200, 400}, "Couldn't Load Leader Board"));
         return;
     }
 
-    // Read numbers from the file into a vector
-    std::vector<int> numbers(Score);
-    int num;
-
-    while (leaderBoardFile) {
-        numbers.push_back(num);
-    }
-
-    // Sort the numbers
-    std::sort(numbers.begin(), numbers.end(), std::greater<int>());
-
-    // Clear the file content file.clear();
-    leaderBoardFile.seekp(0, std::ios::beg);
-
     // Write the sorted numbers back to the file
-    int counter = 0;
-    for (int sortedNum : numbers) {
-        leaderBoardFile << sortedNum << std::endl;
-        if (++counter < 5) break;
+    for (auto score : _leaderBoard) {
+        std::cout << "Writing Score: " << score << std::endl;
+
+        leaderBoardFile << score << std::endl;
     }
 
     // Close the file
