@@ -29,7 +29,7 @@ enum class GameItems {
     TOTAL_ITEMS
 };
 
-enum class LeaderBoardItems { ITEM_LEADERBOARD = 0, ITEM_EXIT, TOTAL_ITEMS };
+enum class LeaderBoardItems { ITEM_LEADER_BOARD = 0, ITEM_EXIT, TOTAL_ITEMS };
 
 enum class ScreenItemType { ITEM_BLOCK = 0, ITEM_TEXT };
 struct Colors {

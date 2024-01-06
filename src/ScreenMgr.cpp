@@ -13,7 +13,7 @@ void ScreenSM::Update(Renderer &renderer) {
     int selection = 0;
     switch (_currentScreen) {
         case Screens::SCREEN_WELCOME:
-            if (_previousScreen == Screens::SCREEN_LEADER_BOARD) {
+            if (_previousScreen != Screens::SCREEN_WELCOME) {
                 // std::cout << "RETURN FROM LEADERBOARRRRRD" << std::endl;
                 _welcomeScreen.Activate();
                 renderer.Render(_welcomeScreen.GetScreenContext());
@@ -26,6 +26,7 @@ void ScreenSM::Update(Renderer &renderer) {
                 case WelcomeItems::ITEM_NEW_GAME:
                     std::cout << "New Game Is Selected" << std::endl;
                     _welcomeScreen.Deactivate();
+                    _welcomeScreen.GameStarted();
                     _currentScreen = Screens::SCREEN_GAME_START;
                     _gameScreen.Activate();
                     break;
@@ -52,7 +53,10 @@ void ScreenSM::Update(Renderer &renderer) {
                 case GameItems::ITEM_PAUSE_GAME:
                     std::cout << "Game Is Paused" << std::endl;
                     // _gameScreen.Deactivate();
-                    _gameScreen.Activate();
+                    _gameScreen.Deactivate();
+                    _previousScreen = _currentScreen;
+                    _currentScreen = Screens::SCREEN_WELCOME;
+
                     break;
                 case GameItems::ITEM_GAME_OVER:
                     std::cout << "Game Over Selected" << std::endl;
@@ -70,8 +74,7 @@ void ScreenSM::Update(Renderer &renderer) {
             switch (static_cast<LeaderBoardItems>(selection)) {
                 case LeaderBoardItems::ITEM_EXIT:
                     std::cout << "Exit Leader Board" << std::endl;
-                    _currentScreen = _previousScreen;
-                    _previousScreen = Screens::SCREEN_LEADER_BOARD;
+                    std::swap<Screens>(_previousScreen, _currentScreen);
                     _leaderBoard.Deactivate();
                     break;
                 default:

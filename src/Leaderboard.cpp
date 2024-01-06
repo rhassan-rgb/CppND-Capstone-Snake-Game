@@ -45,7 +45,7 @@ int LeaderBoard::GetSelection() {
         _pressedKey = KeyStroke::KEY_NONE;
         return static_cast<int>(LeaderBoardItems::ITEM_EXIT);
     }
-    return static_cast<int>(LeaderBoardItems::ITEM_LEADERBOARD);
+    return static_cast<int>(LeaderBoardItems::ITEM_LEADER_BOARD);
 }
 
 void LeaderBoard::Activate() {

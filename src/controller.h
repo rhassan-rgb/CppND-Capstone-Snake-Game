@@ -12,6 +12,12 @@
 class Controller {
    public:
     Controller();
+    Controller(const Controller& other) = delete;
+    Controller(Controller&& other) = delete;
+
+    Controller& operator=(const Controller& other) = delete;
+    Controller& operator=(Controller&& other) = delete;
+
     ~Controller();
 
     void InputListener();

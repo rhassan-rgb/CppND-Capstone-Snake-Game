@@ -6,7 +6,8 @@ WelcomeScreen::WelcomeScreen()
     : IScreen("Snake Game"),
       _pressedKey(KeyStroke::KEY_NONE),
       _selectAction(false),
-      _screenUpdated(true) {
+      _screenUpdated(true),
+      _gameStarted(false) {
     _currentItem = 0;
     _menuItems.emplace_back(TextScreenItem({200, 100}, "Welcome!"));
     _menuItems.emplace_back(TextScreenItem({100, 200}, "New Game", true));
@@ -115,5 +116,13 @@ void WelcomeScreen::Control(const KeyStroke& key) {
 
         default:
             return;
+    }
+}
+
+void WelcomeScreen::GameStarted() {
+    if (!_gameStarted) {
+        _gameStarted = true;
+        _menuItems.at(0).UpdateContent("Game Paused!");
+        _menuItems.at(1).UpdateContent("Resume Game");
     }
 }

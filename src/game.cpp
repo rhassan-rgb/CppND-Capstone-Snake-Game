@@ -56,9 +56,6 @@ void GameScreen::Control(const KeyStroke &key) {
     std::cout << "GameScreen::Control locked Items" << std::endl;
     if (KeyStroke::KEY_ESC == key) {
         _currentItem = static_cast<int>(GameItems::ITEM_PAUSE_GAME);
-        uLock.lock();
-        _isActive = false;
-        uLock.unlock();
         return;
     }
     snake.Control(key);
@@ -101,6 +98,11 @@ void GameScreen::generateScreenContext(Snake const &snake,
     _menuItems = std::vector<ScreenItem>(items);
 }
 bool GameScreen::Update() {
+    std::unique_lock<std::mutex> uLock_active(_activeMutex);
+    if (!_isActive) {
+        return false;
+    }
+    uLock_active.unlock();
     if (!snake.alive) {
         if (static_cast<int>(GameItems::ITEM_GAME_OVER) != _currentItem) {
             _currentItem = static_cast<int>(GameItems::ITEM_GAME_OVER);
