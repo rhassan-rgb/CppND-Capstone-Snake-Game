@@ -41,7 +41,7 @@ Renderer::Renderer(const std::size_t screen_width,
         std::cerr << "Renderer could not be created.\n";
         std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
     }
-    _font = TTF_OpenFont("../src/arial.ttf", 28);
+    _font = TTF_OpenFont("../src/RubikDoodleTriangles-Regular.ttf", 28);
 }
 
 Renderer::~Renderer() {

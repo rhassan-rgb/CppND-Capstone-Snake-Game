@@ -10,7 +10,7 @@ WelcomeScreen::WelcomeScreen()
       _gameStarted(false),
       _gameOver(false) {
     _currentItem = 0;
-    _menuItems.emplace_back(TextScreenItem({200, 100}, "Welcome!"));
+    _menuItems.emplace_back(TextScreenItem({250, 100}, "Snake!"));
     _menuItems.emplace_back(TextScreenItem({100, 200}, "New Game", true));
     _menuItems.emplace_back(TextScreenItem({100, 300}, "Leader board", true));
     _menuItems.emplace_back(TextScreenItem({100, 400}, "Exit", true));

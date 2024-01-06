@@ -22,8 +22,6 @@ class Renderer {
         ScreenItemType type = screenContent.at(0).GetType();
         renderContent(screenContent);
     }
-
-    virtual void Render() = 0;
     void UpdateWindowTitle(int score, int fps);
 
    protected:

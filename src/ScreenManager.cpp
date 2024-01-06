@@ -1,141 +1,131 @@
 #include "ScreenManager.h"
 
-ScreenManager::ScreenManager(const std::size_t screen_width,
-                             const std::size_t screen_height,
-                             const std::size_t grid_width,
-                             const std::size_t grid_height)
-    : Renderer(screen_width, screen_height, grid_width, grid_height) {
-    _gFont = TTF_OpenFont("arial.ttf", 28);
-    _normalColor = {255, 255, 255};
-    _selectedColor = {255, 0, 0};  // Red for selected text
-    _maxNameLength = 20;
-}
-void ScreenManager::Render() {}
+#include <thread>
+ScreenManager::ScreenManager(std::size_t grid_width, std::size_t grid_height)
+    : _currentScreen(Screens::SCREEN_WELCOME),
+      _previousScreen(Screens::SCREEN_WELCOME),
+      _welcomeScreen(),
+      _gameScreen(grid_width, grid_height),
+      _leaderBoard() {}
 
-void ScreenManager::drawText(const std::string& text, int x, int y,
-                             bool selected) {
-    SDL_Color textColor = selected ? _selectedColor : _normalColor;
-    SDL_Surface* surface =
-        TTF_RenderText_Solid(_gFont, text.c_str(), textColor);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
+ScreenManager::~ScreenManager() {}
 
-    int textWidth = surface->w;
-    int textHeight = surface->h;
-
-    SDL_Rect destRect = {x, y, textWidth, textHeight};
-    SDL_RenderCopy(sdl_renderer, texture, nullptr, &destRect);
-
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
-
-void ScreenManager::render(Screens currentScreen, int selected) {
-    // Clear the screen
-    SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 255);
-    SDL_RenderClear(sdl_renderer);
-
-    switch (currentScreen) {
+bool ScreenManager::Update(Renderer &renderer) {
+    int selection = 0;
+    bool retVal = true;
+    switch (_currentScreen) {
         case Screens::SCREEN_WELCOME:
-            renderWelcomeScreen(static_cast<WelcomeItems>(selected));
-            break;
-
-        case Screens::SCREEN_PLAYER_NAME:
-            RenderPlayerNameScreen();
-            break;
-
-        case Screens::SCREEN_LEADER_BOARD:
-
-            break;
-
-        case Screens::SCREEN_PAUSE_GAME:
-
-            break;
-    }
-
-    // Update the screen
-    SDL_RenderPresent(sdl_renderer);
-}
-
-void ScreenManager::handleTextInput(const SDL_TextInputEvent& e,
-                                    std::string& playerName) {
-    // Handle text input for player name
-    if (playerName.length() < _maxNameLength) {
-        playerName += e.text;
-    }
-}
-
-void ScreenManager::renderWelcomeScreen(WelcomeItems selected) {
-    // Draw the welcome text
-    drawText("Welcome to the Game", 150, 100, false);
-
-    // Draw "Start a new game" button with highlight if selected
-    drawText("Start a new game", 150, 200,
-             WelcomeItems::ITEM_NEW_GAME == selected);
-
-    drawText("Leader board", 150, 260,
-             WelcomeItems::ITEM_LEADER_BOARD == selected);
-
-    // Draw "Exit" button with highlight if selected
-    drawText("Exit", 150, 320, WelcomeItems::ITEM_EXIT == selected);
-}
-void ScreenManager::drawTextbox(const std::string& text, int x, int y) {
-    SDL_Color textColor = _normalColor;
-    SDL_Surface* surface =
-        TTF_RenderText_Solid(_gFont, text.c_str(), textColor);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
-
-    int textWidth = surface->w;
-    int textHeight = surface->h;
-
-    SDL_Rect destRect = {x, y, textWidth, textHeight};
-    SDL_RenderCopy(sdl_renderer, texture, nullptr, &destRect);
-
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
-
-void ScreenManager::RenderPlayerNameScreen() {
-    drawText("Welcome to the Game", 150, 100, false);
-    drawTextbox("Player Name: " + _playerName, 150, 200);
-}
-
-Screens handleScreenAction(Screens currentScreen, int selectedItem) {
-    Screens retVal = Screens::TOTAL_ITEMS;
-    switch (currentScreen) {
-        case Screens::SCREEN_WELCOME:
-            switch (static_cast<WelcomeItems>(selectedItem)) {
+            if (_previousScreen != Screens::SCREEN_WELCOME) {
+                // std::cout << "RETURN FROM LEADERBOARRRRRD" << std::endl;
+                _welcomeScreen.Activate();
+                renderer.Render(_welcomeScreen.GetScreenContext());
+                _previousScreen = Screens::SCREEN_WELCOME;
+            }
+            if (!_welcomeScreen.Update()) break;
+            renderer.Render(_welcomeScreen.GetScreenContext());
+            selection = _welcomeScreen.GetSelection();
+            switch (static_cast<WelcomeItems>(selection)) {
                 case WelcomeItems::ITEM_NEW_GAME:
-                    retVal = Screens::SCREEN_PLAYER_NAME;
+                    std::cout << "New Game Is Selected" << std::endl;
+                    _welcomeScreen.Deactivate();
+                    _welcomeScreen.GameStarted();
+                    _currentScreen = Screens::SCREEN_GAME_START;
+                    _gameScreen.Activate();
                     break;
                 case WelcomeItems::ITEM_LEADER_BOARD:
-                    retVal = Screens::SCREEN_LEADER_BOARD;
+                    std::cout << "Leader board Is Selected" << std::endl;
+                    _welcomeScreen.Deactivate();
+                    _previousScreen = _currentScreen;
+                    _currentScreen = Screens::SCREEN_LEADER_BOARD;
+                    _leaderBoard.Activate();
                     break;
                 case WelcomeItems::ITEM_EXIT:
-                    // returning retVal = Screens::TOTAL_ITEMS will cause the
-                    // program to terminate;
+                    std::cout << "Exit Is Selected" << std::endl;
+                    _welcomeScreen.Deactivate();
+                    retVal = false;
+                    break;
                 default:
                     break;
             }
             break;
+        case Screens::SCREEN_GAME_START:
+            if (!_gameScreen.Update()) break;
+            renderer.Render(_gameScreen.GetScreenContext());
+            selection = _gameScreen.GetSelection();
+            switch (static_cast<GameItems>(selection)) {
+                case GameItems::ITEM_PAUSE_GAME:
+                    std::cout << "Game Is Paused" << std::endl;
+                    // _gameScreen.Deactivate();
+                    _gameScreen.Deactivate();
+                    _previousScreen = _currentScreen;
+                    _currentScreen = Screens::SCREEN_WELCOME;
 
-        case Screens::SCREEN_PAUSE_GAME:
-            switch (static_cast<PauseItems>(selectedItem)) {
-                case PauseItems::ITEM_RESUME:
-                    retVal = Screens::SCREEN_RESUME_GAME;
                     break;
-                case PauseItems::ITEM_NEW_GAME:
-                    retVal = Screens::SCREEN_RESUME_GAME;
+                case GameItems::ITEM_GAME_OVER:
+                    std::cout << "Game Over Selected" << std::endl;
+                    // renderer.Render(_gameScreen.GetScreenContext());
+                    _gameScreen.Deactivate();
+                    std::cout << "GameScore=> " << _gameScreen.GetScore()
+                              << std::endl;
+                    _leaderBoard.WriteScore(_gameScreen.GetScore());
+                    _welcomeScreen.GameOver(_gameScreen.GetScore());
+                    _previousScreen = _currentScreen;
+                    _currentScreen = Screens::SCREEN_WELCOME;
                     break;
-                case PauseItems::ITEM_EXIT:
-                    // returning retVal = Screens::TOTAL_ITEMS will cause the
-                    // program to terminate;
                 default:
                     break;
             }
             break;
-        case Screens::SCREEN_PLAYER_NAME:
-            retVal = Screens::SCREEN_GAME_START;
+        case Screens::SCREEN_LEADER_BOARD:
+            if (!_leaderBoard.Update()) break;
+            renderer.Render(_leaderBoard.GetScreenContext());
+            selection = _leaderBoard.GetSelection();
+            switch (static_cast<LeaderBoardItems>(selection)) {
+                case LeaderBoardItems::ITEM_EXIT:
+                    std::cout << "Exit Leader Board" << std::endl;
+                    std::swap<Screens>(_previousScreen, _currentScreen);
+                    _leaderBoard.Deactivate();
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
-
     return retVal;
+}
+
+void ScreenManager::Start(Controller &controller, Renderer &renderer,
+                          std::size_t target_frame_duration) {
+    Uint32 title_timestamp = SDL_GetTicks();
+    Uint32 frame_start;
+    Uint32 frame_end;
+    Uint32 frame_duration;
+    int frame_count = 0;
+    _welcomeScreen.Activate();
+    controller.RegisterHandlerCallBack(_welcomeScreen.controlCallback);
+    controller.RegisterHandlerCallBack(_gameScreen.controlCallback);
+    controller.RegisterHandlerCallBack(_leaderBoard.controlCallback);
+
+    renderer.Render(_welcomeScreen.GetScreenContext());
+    while (controller.isRunning()) {
+        frame_start = SDL_GetTicks();
+        if (!Update(renderer)) {
+            controller.Stop();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        frame_end = SDL_GetTicks();
+
+        // Keep track of how long each loop through the input/update/render
+        // cycle takes.
+        frame_count++;
+        frame_duration = frame_end - frame_start;
+        // If the time for this frame is too small (i.e. frame_duration is
+        // smaller than the target ms_per_frame), delay the loop to
+        // achieve the correct frame rate.
+        if (frame_duration < target_frame_duration) {
+            SDL_Delay(target_frame_duration - frame_duration);
+        }
+    }
 }
