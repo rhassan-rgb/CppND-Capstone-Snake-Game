@@ -67,8 +67,8 @@ bool ScreenSM::Update(Renderer &renderer) {
                     _gameScreen.Deactivate();
                     std::cout << "GameScore=> " << _gameScreen.GetScore()
                               << std::endl;
-
                     _leaderBoard.WriteScore(_gameScreen.GetScore());
+                    _welcomeScreen.GameOver(_gameScreen.GetScore());
                     _previousScreen = _currentScreen;
                     _currentScreen = Screens::SCREEN_WELCOME;
                     break;

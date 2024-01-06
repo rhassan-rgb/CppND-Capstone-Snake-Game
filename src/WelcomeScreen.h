@@ -15,6 +15,7 @@ class WelcomeScreen : public IScreen<TextScreenItem> {
     int GetSelection() override;
     std::string GetTitle() override;
     void GameStarted();
+    void GameOver(int Score);
     const std::vector<TextScreenItem>& GetScreenContext() const;
 
    private:
@@ -25,6 +26,7 @@ class WelcomeScreen : public IScreen<TextScreenItem> {
     bool _screenUpdated;
     bool _selectAction;
     bool _gameStarted;
+    bool _gameOver;
     bool handlePressedKey();
     void changeSelection(Direction dir);
 };

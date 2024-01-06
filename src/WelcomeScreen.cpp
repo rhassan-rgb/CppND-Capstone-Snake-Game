@@ -7,7 +7,8 @@ WelcomeScreen::WelcomeScreen()
       _pressedKey(KeyStroke::KEY_NONE),
       _selectAction(false),
       _screenUpdated(true),
-      _gameStarted(false) {
+      _gameStarted(false),
+      _gameOver(false) {
     _currentItem = 0;
     _menuItems.emplace_back(TextScreenItem({200, 100}, "Welcome!"));
     _menuItems.emplace_back(TextScreenItem({100, 200}, "New Game", true));
@@ -31,10 +32,14 @@ bool WelcomeScreen::Update() {
 }
 
 int WelcomeScreen::GetSelection() {
+    if (_gameOver && _currentItem == 1) {
+        return static_cast<int>(WelcomeItems::ITEM_WELCOME);
+    }
     if (_selectAction) {
         _selectAction = false;
         return _currentItem;
     }
+
     return static_cast<int>(WelcomeItems::ITEM_WELCOME);
 }
 
@@ -124,5 +129,14 @@ void WelcomeScreen::GameStarted() {
         _gameStarted = true;
         _menuItems.at(0).UpdateContent("Game Paused!");
         _menuItems.at(1).UpdateContent("Resume Game");
+    }
+}
+
+void WelcomeScreen::GameOver(int Score) {
+    if (!_gameOver) {
+        _gameOver = true;
+        _menuItems.at(0).UpdateContent("Game Over!");
+        _menuItems.at(1).UpdateContent(std::string("Your Score ") +
+                                       std::to_string(Score));
     }
 }

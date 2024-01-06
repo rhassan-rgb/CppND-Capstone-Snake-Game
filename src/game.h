@@ -25,6 +25,7 @@ class GameScreen : public IScreen<ScreenItem> {
     int GetSelection() override;
     virtual std::string GetTitle() override;
     const std::vector<ScreenItem>& GetScreenContext() const override;
+    void NewGame();
     std::function<void(KeyStroke)> controlCallback;
 
    private:
