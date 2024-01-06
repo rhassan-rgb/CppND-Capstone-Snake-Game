@@ -1,5 +1,6 @@
-#include "ScreenSM.h"
+#include <thread>
 
+#include "ScreenSM.h"
 ScreenSM::ScreenSM(std::size_t grid_width, std::size_t grid_height)
     : _currentScreen(Screens::SCREEN_WELCOME),
       _previousScreen(Screens::SCREEN_WELCOME),
@@ -9,8 +10,9 @@ ScreenSM::ScreenSM(std::size_t grid_width, std::size_t grid_height)
 
 ScreenSM::~ScreenSM() {}
 
-void ScreenSM::Update(Renderer &renderer) {
+bool ScreenSM::Update(Renderer &renderer) {
     int selection = 0;
+    bool retVal = true;
     switch (_currentScreen) {
         case Screens::SCREEN_WELCOME:
             if (_previousScreen != Screens::SCREEN_WELCOME) {
@@ -40,6 +42,7 @@ void ScreenSM::Update(Renderer &renderer) {
                 case WelcomeItems::ITEM_EXIT:
                     std::cout << "Exit Is Selected" << std::endl;
                     _welcomeScreen.Deactivate();
+                    retVal = false;
                     break;
                 default:
                     break;
@@ -84,6 +87,7 @@ void ScreenSM::Update(Renderer &renderer) {
         default:
             break;
     }
+    return retVal;
 }
 
 void ScreenSM::Start(Controller &controller, Renderer &renderer,
@@ -100,7 +104,17 @@ void ScreenSM::Start(Controller &controller, Renderer &renderer,
 
     renderer.Render(_welcomeScreen.GetScreenContext());
     while (controller.isRunning()) {
-        Update(renderer);
+        frame_start = SDL_GetTicks();
+        if (!Update(renderer)) {
+            controller.Stop();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        frame_end = SDL_GetTicks();
+
+        // Keep track of how long each loop through the input/update/render
+        // cycle takes.
+        frame_count++;
+        frame_duration = frame_end - frame_start;
         // If the time for this frame is too small (i.e. frame_duration is
         // smaller than the target ms_per_frame), delay the loop to
         // achieve the correct frame rate.

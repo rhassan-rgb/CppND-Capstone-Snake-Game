@@ -23,16 +23,18 @@ class Controller {
     void InputListener();
     void RegisterHandlerCallBack(std::function<void(KeyStroke)>& callback);
     bool isRunning() const;
+    void Stop();
 
    private:
     std::future<void> _listener;
-    std::future<void> _handler;
+    std::thread _handler;
     std::vector<std::function<void(KeyStroke)>> _callbacks;
     std::unique_ptr<MessageBox<KeyStroke>> _keyStrokes;
     std::mutex _runningGuard;
     std::mutex _handlersGuard;
     bool _isValid;
     bool _isRunning;
+    std::atomic<bool> _stopFlag;
 
     bool ListenToKeys();
     void InputHandler();

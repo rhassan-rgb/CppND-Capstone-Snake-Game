@@ -28,7 +28,7 @@ class ScreenSM {
     ScreenSM() = delete;
     ScreenSM(std::size_t grid_width, std::size_t grid_height);
     ~ScreenSM();
-    void Update(Renderer &renderer);
+    bool Update(Renderer &renderer);
     void Start(Controller &controller, Renderer &renderer,
                std::size_t target_frame_duration);
 

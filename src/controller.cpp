@@ -11,12 +11,11 @@
 
 constexpr int KEYBOARD_SAMPLING_RATE = 100;  // ms
 
-std::atomic<bool> stopFlag(false);
-
-Controller::Controller() : _keyStrokes(new MessageBox<KeyStroke>) {
+Controller::Controller()
+    : _keyStrokes(new MessageBox<KeyStroke>), _stopFlag(false) {
     _isRunning = true;
     _listener = std::async(&Controller::InputListener, this);
-    _handler = std::async(std::launch::async, &Controller::InputHandler, this);
+    _handler = std::thread(&Controller::InputHandler, this);
 }
 
 void Controller::InputHandler() {
@@ -38,6 +37,10 @@ void Controller::InputHandler() {
 bool Controller::ListenToKeys() {
     bool retVal = true;
     SDL_Event e;
+    if (_stopFlag.load()) {
+        _keyStrokes->send(KeyStroke::KEY_EXT);
+        return false;
+    }
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
             _keyStrokes->send(KeyStroke::KEY_EXT);
@@ -80,7 +83,7 @@ void Controller::InputListener() {
             std::chrono::milliseconds(KEYBOARD_SAMPLING_RATE));
         if (!ListenToKeys()) {
             std::lock_guard<std::mutex> lck(_runningGuard);
-            stopFlag.store(true);
+            _stopFlag.store(true);
             return;
         }
     }
@@ -92,12 +95,14 @@ void Controller::RegisterHandlerCallBack(
     _callbacks.emplace_back(callback);
 }
 
-bool Controller::isRunning() const { return !stopFlag.load(); }
+bool Controller::isRunning() const { return !_stopFlag.load(); }
 
 Controller::~Controller() {
     _listener.wait();
     std::cout << "Listener Exit" << std::endl;
 
-    _handler.wait();
+    _handler.join();
     std::cout << "Handler Exit" << std::endl;
 }
+
+void Controller::Stop() { _stopFlag.store(true); }
