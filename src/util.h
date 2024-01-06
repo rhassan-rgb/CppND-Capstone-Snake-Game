@@ -28,12 +28,18 @@ enum class GameItems {
     ITEM_PAUSE_GAME,
     TOTAL_ITEMS
 };
+
+enum class LeaderBoardItems { ITEM_LEADERBOARD = 0, ITEM_EXIT, TOTAL_ITEMS };
+
 enum class ScreenItemType { ITEM_BLOCK = 0, ITEM_TEXT };
 struct Colors {
     uint8_t r;
     uint8_t g;
     uint8_t b;
     uint8_t a;
+    bool operator==(const Colors &other) {
+        return (r == other.r && g == other.g && b == other.b && a == other.a);
+    }
 };
 
 constexpr Colors SELECTED_COLOR = {.r = 255, .g = 0, .b = 0, .a = 0};
@@ -67,6 +73,7 @@ class TextScreenItem : public ScreenItem {
     TextScreenItem(Coordinates cord, std::string content);
     bool IsSelectable() const;
     std::string ToString() const;
+    void UpdateContent(std::string newContent);
 
    private:
     bool _isSelectable;

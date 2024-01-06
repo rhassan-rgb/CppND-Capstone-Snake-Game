@@ -2,9 +2,10 @@
 
 ScreenSM::ScreenSM(std::size_t grid_width, std::size_t grid_height)
     : _currentScreen(Screens::SCREEN_WELCOME),
-      _nextScreen(Screens::SCREEN_WELCOME),
+      _previousScreen(Screens::SCREEN_WELCOME),
       _welcomeScreen(),
-      _gameScreen(grid_width, grid_height) {}
+      _gameScreen(grid_width, grid_height),
+      _leaderBoard() {}
 
 ScreenSM::~ScreenSM() {}
 
@@ -12,6 +13,12 @@ void ScreenSM::Update(Renderer &renderer) {
     int selection = 0;
     switch (_currentScreen) {
         case Screens::SCREEN_WELCOME:
+            if (_previousScreen == Screens::SCREEN_LEADER_BOARD) {
+                // std::cout << "RETURN FROM LEADERBOARRRRRD" << std::endl;
+                _welcomeScreen.Activate();
+                renderer.Render(_welcomeScreen.GetScreenContext());
+                _previousScreen = Screens::SCREEN_WELCOME;
+            }
             if (!_welcomeScreen.Update()) break;
             renderer.Render(_welcomeScreen.GetScreenContext());
             selection = _welcomeScreen.GetSelection();
@@ -24,6 +31,10 @@ void ScreenSM::Update(Renderer &renderer) {
                     break;
                 case WelcomeItems::ITEM_LEADER_BOARD:
                     std::cout << "Leader board Is Selected" << std::endl;
+                    _welcomeScreen.Deactivate();
+                    _previousScreen = _currentScreen;
+                    _currentScreen = Screens::SCREEN_LEADER_BOARD;
+                    _leaderBoard.Activate();
                     break;
                 case WelcomeItems::ITEM_EXIT:
                     std::cout << "Exit Is Selected" << std::endl;
@@ -52,7 +63,21 @@ void ScreenSM::Update(Renderer &renderer) {
                     break;
             }
             break;
-
+        case Screens::SCREEN_LEADER_BOARD:
+            if (!_leaderBoard.Update()) break;
+            renderer.Render(_leaderBoard.GetScreenContext());
+            selection = _leaderBoard.GetSelection();
+            switch (static_cast<LeaderBoardItems>(selection)) {
+                case LeaderBoardItems::ITEM_EXIT:
+                    std::cout << "Exit Leader Board" << std::endl;
+                    _currentScreen = _previousScreen;
+                    _previousScreen = Screens::SCREEN_LEADER_BOARD;
+                    _leaderBoard.Deactivate();
+                    break;
+                default:
+                    break;
+            }
+            break;
         default:
             break;
     }
@@ -68,6 +93,8 @@ void ScreenSM::Start(Controller &controller, Renderer &renderer,
     _welcomeScreen.Activate();
     controller.RegisterHandlerCallBack(_welcomeScreen.controlCallback);
     controller.RegisterHandlerCallBack(_gameScreen.controlCallback);
+    controller.RegisterHandlerCallBack(_leaderBoard.controlCallback);
+
     renderer.Render(_welcomeScreen.GetScreenContext());
     while (controller.isRunning()) {
         Update(renderer);

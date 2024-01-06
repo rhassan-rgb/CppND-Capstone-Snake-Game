@@ -11,7 +11,9 @@ TextScreenItem::TextScreenItem(Coordinates cord, std::string content)
     : TextScreenItem(cord, content, false) {}
 bool TextScreenItem::IsSelectable() const { return _isSelectable; };
 std::string TextScreenItem::ToString() const { return _content; }
-
+void TextScreenItem::UpdateContent(std::string newContent) {
+    _content = newContent;
+}
 /*Screen Items Implementation*/
 ScreenItem::ScreenItem(Coordinates cord)
     : ScreenItem(cord, ScreenItemType::ITEM_BLOCK) {}

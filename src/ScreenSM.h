@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "IScreen.h"
+#include "Leaderboard.h"
 #include "WelcomeScreen.h"
 #include "controller.h"
 #include "game.h"
@@ -34,8 +35,9 @@ class ScreenSM {
    private:
     WelcomeScreen _welcomeScreen;
     GameScreen _gameScreen;
+    LeaderBoard _leaderBoard;
     Screens _currentScreen;
-    Screens _nextScreen;
+    Screens _previousScreen;
 };
 
 #endif /*SCREEN_SM_H*/

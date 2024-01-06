@@ -89,14 +89,10 @@ void Renderer::Render(Snake const &snake, SDL_Point const &food) {
 }
 
 void Renderer::renderContent(std::vector<TextScreenItem> const &screenContent) {
-    int x(100);
-    int y(100);
     SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
     SDL_RenderClear(sdl_renderer);
     for (auto &item : screenContent) {
         drawText(item.ToString(), item.GetCoordinates(), item.GetColor());
-        x += 100;
-        y += 100;
     }
     SDL_RenderPresent(sdl_renderer);
 }
