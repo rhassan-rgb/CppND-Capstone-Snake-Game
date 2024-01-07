@@ -23,10 +23,7 @@ void Controller::InputHandler() {
         KeyStroke key = _keyStrokes->receive();
         std::lock_guard<std::mutex> lock(_handlersGuard);
         for (auto &&callback : _callbacks) {
-            std::cout << _callbacks.size() << "handler : " << &callback
-                      << std::endl;
             callback(key);
-            std::cout << "handler : " << &callback << " EXIT" << std::endl;
         }
         if (KeyStroke::KEY_EXT == key) {
             return;

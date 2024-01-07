@@ -38,11 +38,8 @@ bool LeaderBoard::Update() {
 }
 
 int LeaderBoard::GetSelection() {
-    std::cout << "LeaderBoard::GetSelection lock Items" << std::endl;
     std::lock_guard<std::mutex> lck(_pressedKeyLock);
-    std::cout << "LeaderBoard::GetSelection locked Items" << std::endl;
     if (_pressedKey == KeyStroke::KEY_ESC) {
-        std::cout << "LeaderBoard::GetSelection Return Exit" << std::endl;
         _pressedKey = KeyStroke::KEY_NONE;
         return static_cast<int>(LeaderBoardItems::ITEM_EXIT);
     }
@@ -68,18 +65,24 @@ void LeaderBoard::ReadLeaderBoard() {
     const char* fileName = "../src/LeaderBoard.txt";
 
     // Open the file for both reading and writing
-    std::fstream leaderBoardFile(fileName, std::ios::in);
+    std::fstream leaderBoardFile(fileName, std::ios::in | std::ios::out);
 
     // Check if the file is open
     if (!leaderBoardFile.is_open()) {
-        std::cerr << "Error opening file." << std::endl;
-        return;
+        std::cerr << "Error opening file. Creating a new one" << std::endl;
+        leaderBoardFile.open(fileName, std::ios::out);
+        leaderBoardFile.close();
+        leaderBoardFile.open(fileName, std::ios::in);
+        if (!leaderBoardFile.is_open()) {
+            std::cerr << "Error opening file. Can't load leader board"
+                      << std::endl;
+            return;
+        }
     }
 
     int num;
     int index = 0;
     while (leaderBoardFile >> num && index < _leaderBoard.size()) {
-        std::cout << "Reading Score: " << index << std::endl;
         _leaderBoard.at(index) = num;
         ++index;
     }
@@ -87,40 +90,22 @@ void LeaderBoard::ReadLeaderBoard() {
     // Sort the numbers
     std::sort(_leaderBoard.begin(), _leaderBoard.end(), std::greater<int>());
 
-    // Clear the file content
-    // file.clear();
-    // file.seekp(0, std::ios::beg);
-
-    // // Write the sorted numbers back to the file
-    // for (int sortedNum : numbers) {
-    //     file << sortedNum << std::endl;
-    // }
-
-    // Close the file
     leaderBoardFile.close();
-
-    std::cout << "Numbers read from " << fileName << "." << std::endl;
 }
 void LeaderBoard::LoadLeaderBoard() {
     int counter = 1;
     for (auto score : _leaderBoard) {
-        std::cout << "list Score: " << score << std::endl;
         _menuItems.at(counter).UpdateContent(std::to_string(score));
         counter++;
     }
 }
 void LeaderBoard::Control(const KeyStroke& key) {
-    std::cout << "LeaderBoard::Control lock Active" << std::endl;
     std::unique_lock<std::mutex> uLock(_activeMutex);
     if (!_isActive) {
-        std::cout << "LeaderBoard::Not Active -> returning" << std::endl;
         return;
     }
-    std::cout << "LeaderBoard::Control unlock Active" << std::endl;
     uLock.unlock();
-    std::cout << "LeaderBoard::Control lock Items" << std::endl;
     std::lock_guard<std::mutex> lck(_pressedKeyLock);
-    std::cout << "LeaderBoard::Control locked Items" << std::endl;
     switch (key) {
         case KeyStroke::KEY_ESC:
             _pressedKey = KeyStroke::KEY_ESC;
@@ -149,17 +134,17 @@ void LeaderBoard::WriteScore(int score) {
     // Check if the file is open
     if (!leaderBoardFile.is_open()) {
         std::cerr << "Error opening file." << std::endl;
-        return;
+        leaderBoardFile.open(fileName, std::ios::out);
+        if (!leaderBoardFile.is_open()) {
+            std::cerr << "Error opening file. Can't load leader board"
+                      << std::endl;
+            return;
+        }
     }
-
     // Write the sorted numbers back to the file
     for (auto score : _leaderBoard) {
-        std::cout << "Writing Score: " << score << std::endl;
-
         leaderBoardFile << score << std::endl;
     }
-
     // Close the file
     leaderBoardFile.close();
-    std::cout << "Numbers written to " << fileName << "." << std::endl;
 }

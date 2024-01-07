@@ -28,8 +28,6 @@ class MessageBox {
         std::lock_guard<std::mutex> uLock(_mutex);
 
         // add vector to queue
-        std::cout << "   Message " << int(msg) << " has been sent to the queue"
-                  << std::endl;
         _message = std::move(msg);
         _cond.notify_one();  // notify client after pushing new Vehicle into
                              // vector

@@ -16,13 +16,11 @@ class Renderer {
              const std::size_t grid_width, const std::size_t grid_height);
     ~Renderer();
 
-    void Render(Snake const &snake, SDL_Point const &food);
     template <typename T>
     void Render(std::vector<T> const &screenContent) {
         ScreenItemType type = screenContent.at(0).GetType();
         renderContent(screenContent);
     }
-    void UpdateWindowTitle(int score, int fps);
 
    protected:
     SDL_Window *sdl_window;

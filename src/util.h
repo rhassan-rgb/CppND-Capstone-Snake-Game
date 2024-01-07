@@ -40,6 +40,9 @@ struct Colors {
     bool operator==(const Colors &other) {
         return (r == other.r && g == other.g && b == other.b && a == other.a);
     }
+    bool operator!=(const Colors &other) {
+        return (r != other.r || g != other.g || b != other.b || a != other.a);
+    }
 };
 
 constexpr Colors SELECTED_COLOR = {.r = 255, .g = 0, .b = 0, .a = 0};

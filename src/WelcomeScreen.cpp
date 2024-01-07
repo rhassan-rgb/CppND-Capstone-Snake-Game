@@ -95,17 +95,12 @@ bool WelcomeScreen::handlePressedKey() {
 }
 
 void WelcomeScreen::Control(const KeyStroke& key) {
-    std::cout << "WelcomeScreen::Control lock Active" << std::endl;
     std::unique_lock<std::mutex> uLock(_activeMutex);
     if (!_isActive) {
-        std::cout << "WelcomeScreen::Not Active -> returning" << std::endl;
         return;
     }
-    std::cout << "WelcomeScreen::Control unlock Active" << std::endl;
     uLock.unlock();
-    std::cout << "WelcomeScreen::Control lock Items" << std::endl;
     std::lock_guard<std::mutex> lck(_pressedKeyLock);
-    std::cout << "WelcomeScreen::Control locked Items" << std::endl;
     switch (key) {
         case KeyStroke::KEY_UP:
             _pressedKey = KeyStroke::KEY_UP;

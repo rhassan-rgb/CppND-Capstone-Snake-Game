@@ -16,7 +16,6 @@ bool ScreenManager::Update(Renderer &renderer) {
     switch (_currentScreen) {
         case Screens::SCREEN_WELCOME:
             if (_previousScreen != Screens::SCREEN_WELCOME) {
-                // std::cout << "RETURN FROM LEADERBOARRRRRD" << std::endl;
                 _welcomeScreen.Activate();
                 renderer.Render(_welcomeScreen.GetScreenContext());
                 _previousScreen = Screens::SCREEN_WELCOME;
@@ -26,21 +25,18 @@ bool ScreenManager::Update(Renderer &renderer) {
             selection = _welcomeScreen.GetSelection();
             switch (static_cast<WelcomeItems>(selection)) {
                 case WelcomeItems::ITEM_NEW_GAME:
-                    std::cout << "New Game Is Selected" << std::endl;
                     _welcomeScreen.Deactivate();
                     _welcomeScreen.GameStarted();
                     _currentScreen = Screens::SCREEN_GAME_START;
                     _gameScreen.Activate();
                     break;
                 case WelcomeItems::ITEM_LEADER_BOARD:
-                    std::cout << "Leader board Is Selected" << std::endl;
                     _welcomeScreen.Deactivate();
                     _previousScreen = _currentScreen;
                     _currentScreen = Screens::SCREEN_LEADER_BOARD;
                     _leaderBoard.Activate();
                     break;
                 case WelcomeItems::ITEM_EXIT:
-                    std::cout << "Exit Is Selected" << std::endl;
                     _welcomeScreen.Deactivate();
                     retVal = false;
                     break;
@@ -54,19 +50,13 @@ bool ScreenManager::Update(Renderer &renderer) {
             selection = _gameScreen.GetSelection();
             switch (static_cast<GameItems>(selection)) {
                 case GameItems::ITEM_PAUSE_GAME:
-                    std::cout << "Game Is Paused" << std::endl;
-                    // _gameScreen.Deactivate();
                     _gameScreen.Deactivate();
                     _previousScreen = _currentScreen;
                     _currentScreen = Screens::SCREEN_WELCOME;
 
                     break;
                 case GameItems::ITEM_GAME_OVER:
-                    std::cout << "Game Over Selected" << std::endl;
-                    // renderer.Render(_gameScreen.GetScreenContext());
                     _gameScreen.Deactivate();
-                    std::cout << "GameScore=> " << _gameScreen.GetScore()
-                              << std::endl;
                     _leaderBoard.WriteScore(_gameScreen.GetScore());
                     _welcomeScreen.GameOver(_gameScreen.GetScore());
                     _previousScreen = _currentScreen;
@@ -82,7 +72,6 @@ bool ScreenManager::Update(Renderer &renderer) {
             selection = _leaderBoard.GetSelection();
             switch (static_cast<LeaderBoardItems>(selection)) {
                 case LeaderBoardItems::ITEM_EXIT:
-                    std::cout << "Exit Leader Board" << std::endl;
                     std::swap<Screens>(_previousScreen, _currentScreen);
                     _leaderBoard.Deactivate();
                     break;

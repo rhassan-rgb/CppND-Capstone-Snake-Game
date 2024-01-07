@@ -41,19 +41,12 @@ int GameScreen::GetScore() const { return score; }
 int GameScreen::GetSize() const { return snake.size; }
 
 void GameScreen::Control(const KeyStroke &key) {
-    std::cout << "GameScreen::Control lock Active" << std::endl;
     std::unique_lock<std::mutex> uLock(_activeMutex);
     if (!_isActive) {
-        std::cout << "GameScreen::Control InActive returning" << std::endl;
-
         return;
     }
-    std::cout << "GameScreen::Control unlock Active" << std::endl;
     uLock.unlock();
-    std::cout << "GameScreen::Control unlocked Active" << std::endl;
-    std::cout << "GameScreen::Control lock Items" << std::endl;
     std::lock_guard<std::mutex> uLock_items(_itemsMutex);
-    std::cout << "GameScreen::Control locked Items" << std::endl;
     if (KeyStroke::KEY_ESC == key) {
         _currentItem = static_cast<int>(GameItems::ITEM_PAUSE_GAME);
         return;
@@ -129,28 +122,7 @@ bool GameScreen::Update() {
         snake.speed += 0.02;
     }
     generateScreenContext(snake, food);
-    // renderer.Render(snake, food);
 
-    // frame_end = SDL_GetTicks();
-
-    // // Keep track of how long each loop through the input/update/render
-    // // cycle takes.
-    // frame_count++;
-    // frame_duration = frame_end - frame_start;
-
-    // After every second, update the window title.
-    // if (frame_end - title_timestamp >= 1000) {
-    //     renderer.UpdateWindowTitle(score, frame_count);
-    //     frame_count = 0;
-    //     title_timestamp = frame_end;
-    // }
-
-    // If the time for this frame is too small (i.e. frame_duration is
-    // smaller than the target ms_per_frame), delay the loop to
-    // achieve the correct frame rate.
-    // if (frame_duration < target_frame_duration) {
-    //     SDL_Delay(target_frame_duration - frame_duration);
-    // }
     return true;
 }
 

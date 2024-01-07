@@ -41,7 +41,7 @@ Renderer::Renderer(const std::size_t screen_width,
         std::cerr << "Renderer could not be created.\n";
         std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
     }
-    _font = TTF_OpenFont("../src/RubikDoodleTriangles-Regular.ttf", 28);
+    _font = TTF_OpenFont("../src/RubikLines-Regular.ttf", 28);
 }
 
 Renderer::~Renderer() {
@@ -49,43 +49,6 @@ Renderer::~Renderer() {
     SDL_DestroyWindow(sdl_window);
     TTF_Quit();
     SDL_Quit();
-}
-
-void Renderer::Render(Snake const &snake, SDL_Point const &food) {
-    SDL_Rect block;
-    block.w = screen_width / grid_width;
-    block.h = screen_height / grid_height;
-
-    // Clear screen
-    SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
-    SDL_RenderClear(sdl_renderer);
-
-    // Render food
-    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-    block.x = food.x * block.w;
-    block.y = food.y * block.h;
-    SDL_RenderFillRect(sdl_renderer, &block);
-
-    // Render snake's body
-    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    for (SDL_Point const &point : snake.body) {
-        block.x = point.x * block.w;
-        block.y = point.y * block.h;
-        SDL_RenderFillRect(sdl_renderer, &block);
-    }
-
-    // Render snake's head
-    block.x = static_cast<int>(snake.head_x) * block.w;
-    block.y = static_cast<int>(snake.head_y) * block.h;
-    if (snake.alive) {
-        SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
-    } else {
-        SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-    }
-    SDL_RenderFillRect(sdl_renderer, &block);
-
-    // Update Screen
-    SDL_RenderPresent(sdl_renderer);
 }
 
 void Renderer::renderContent(std::vector<TextScreenItem> const &screenContent) {
@@ -96,51 +59,35 @@ void Renderer::renderContent(std::vector<TextScreenItem> const &screenContent) {
     }
     SDL_RenderPresent(sdl_renderer);
 }
+
 void Renderer::renderContent(std::vector<ScreenItem> const &screenContent) {
     SDL_Rect block;
     block.w = screen_width / grid_width;
     block.h = screen_height / grid_height;
-    Colors temp = screenContent.at(0).GetColor();
+    Colors tempClr = screenContent.at(0).GetColor();
     Coordinates tempCor = screenContent.at(0).GetCoordinates();
 
     // Clear screen
     SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
     SDL_RenderClear(sdl_renderer);
 
-    // Render food
-    SDL_SetRenderDrawColor(sdl_renderer, temp.r, temp.g, temp.b, temp.a);
-    block.x = tempCor.x * block.w;
-    block.y = tempCor.y * block.h;
-    SDL_RenderFillRect(sdl_renderer, &block);
-
-    temp = screenContent.at(1).GetColor();
-    tempCor = screenContent.at(1).GetCoordinates();
-    // Render snake's body
-    SDL_SetRenderDrawColor(sdl_renderer, temp.r, temp.g, temp.b, temp.a);
-
-    for (auto item = screenContent.begin() + 1; item < screenContent.end() - 1;
-         ++item) {
-        tempCor = item->GetCoordinates();
+    SDL_SetRenderDrawColor(sdl_renderer, tempClr.r, tempClr.g, tempClr.b,
+                           tempClr.a);
+    for (auto &item : screenContent) {
+        if (tempClr != item.GetColor()) {
+            tempClr = item.GetColor();
+            SDL_SetRenderDrawColor(sdl_renderer, tempClr.r, tempClr.g,
+                                   tempClr.b, tempClr.a);
+        }
+        tempCor = item.GetCoordinates();
         block.x = tempCor.x * block.w;
         block.y = tempCor.y * block.h;
         SDL_RenderFillRect(sdl_renderer, &block);
     }
 
-    // Render snake's head
-    temp = (screenContent.end() - 1)->GetColor();
-    tempCor = (screenContent.end() - 1)->GetCoordinates();
-    SDL_SetRenderDrawColor(sdl_renderer, temp.r, temp.g, temp.b, temp.a);
-    block.x = tempCor.x * block.w;
-    block.y = tempCor.y * block.h;
-    SDL_RenderFillRect(sdl_renderer, &block);
-
     // Update Screen
     SDL_RenderPresent(sdl_renderer);
 }
-
-// void Renderer::Render<T>(IScreen<T> const &screen) {
-
-// }
 
 void Renderer::drawText(const std::string &text, const Coordinates &cord,
                         const Colors &clrs) {
@@ -156,10 +103,4 @@ void Renderer::drawText(const std::string &text, const Coordinates &cord,
 
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
-}
-
-void Renderer::UpdateWindowTitle(int score, int fps) {
-    std::string title{"Snake Score: " + std::to_string(score) +
-                      " FPS: " + std::to_string(fps)};
-    SDL_SetWindowTitle(sdl_window, title.c_str());
 }
