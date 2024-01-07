@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-std=c++17)
 
-set(CXX_FLAGS "-Wall" "-pthread")
+set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 project(SDL2Test)
@@ -31,4 +31,4 @@ file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
 
 add_executable(SnakeGame ${SOURCE_FILES})
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
-target_link_libraries(SnakeGame ${SDL2_LIBRARIES}  ${SDL2_TTF_LIBRARY})
+target_link_libraries(SnakeGame pthread ${SDL2_LIBRARIES}  ${SDL2_TTF_LIBRARY})
