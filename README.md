@@ -6,14 +6,21 @@ As we can see in the GIF below, the core of the game is kept as is.
 <img src="Images/snake_game.gif"/>
 
 ## Improvements Made:
-- Add Menu to the game screen
-<img src="Images/WelcomeMenu.png"/>
-- Add Leader Board of Top 5 records
-<img src="Images/LeaderBoard.png"/>
+- Added Bonus Food (in green) that appears after eating 5 normal fruits for 10 seconds and increases the score without affecting the snake length.
+
+  <img src="Images/BonusFood.png"/>
+- Added Menu to the game screen
+
+  <img src="Images/WelcomeMenu.png"/>
+- Added Leader Board of Top 5 records
+
+  <img src="Images/LeaderBoard.png"/>
 - Score is shown after the game is over
-<img src="Images/GameOver.png"/>
+
+  <img src="Images/GameOver.png"/>
 - New Score is logged in the Leader board 
-<img src="Images/LeaderBoard1.png"/>
+
+  <img src="Images/LeaderBoard1.png"/>
 
 ## Dependencies for Running Locally
 * cmake >= 3.7
@@ -84,11 +91,11 @@ As we can see in the GIF below, the core of the game is kept as is.
 
 ### Concurrency (2 required)
 - The project uses multithreading.
-  - See `controller.h` & `controller.cpp`
+  - See `controller.h`, `controller.cpp` & `GameScreen.cpp`
 - A mutex or lock is used in the project.
-  - see `ScreenManager.cpp`, `LeaderBoard.cpp`, `util.cpp`, `WelcomeScreen.cpp`
+  - see `ScreenManager.cpp`, `LeaderBoard.cpp`, `util.cpp`, `GameScreen.cpp` & `WelcomeScreen.cpp`
 - A condition variable is used in the project.
-  - see `MessageBox.h`
+  - see `MessageBox.h` & `GameScreen.cpp`
   
 ## CC Attribution-ShareAlike 4.0 International
 
