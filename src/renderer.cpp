@@ -104,3 +104,7 @@ void Renderer::drawText(const std::string &text, const Coordinates &cord,
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
+
+void Renderer::UpdateWindowTitle(std::string title) {
+    SDL_SetWindowTitle(sdl_window, title.c_str());
+}

@@ -21,6 +21,7 @@ class Renderer {
         ScreenItemType type = screenContent.at(0).GetType();
         renderContent(screenContent);
     }
+    void UpdateWindowTitle(std::string title);
 
    protected:
     SDL_Window *sdl_window;

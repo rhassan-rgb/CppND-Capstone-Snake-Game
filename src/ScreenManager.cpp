@@ -106,6 +106,16 @@ void ScreenManager::Start(Controller &controller, Renderer &renderer,
         }
         frame_end = SDL_GetTicks();
 
+        if (frame_end - title_timestamp >= 1000) {
+            renderer.UpdateWindowTitle(
+                "Snake Game Score: " + std::to_string(_gameScreen.GetScore()) +
+                " FPS: " + std::to_string(frame_count));
+            // if (_currentScreen == Screens::SCREEN_GAME_START) {
+            // }
+            frame_count = 0;
+            title_timestamp = frame_end;
+        }
+
         // Keep track of how long each loop through the input/update/render
         // cycle takes.
         frame_count++;

@@ -3,7 +3,7 @@
 #include <iostream>
 
 WelcomeScreen::WelcomeScreen()
-    : IScreen("Snake Game"),
+    : IScreen("Snake Game Score: 0 FPS: 0"),
       _pressedKey(KeyStroke::KEY_NONE),
       _selectAction(false),
       _screenUpdated(true),

@@ -32,16 +32,24 @@ class GameScreen : public IScreen<ScreenItem> {
     WelcomeScreen welcomeScreen;
     Snake snake;
     SDL_Point food;
+    SDL_Point bonusFood;
+    bool bonusFoodActive;
+    bool bonusFoodPlaced;
+    int bonusFoodCounter;
 
     std::random_device dev;
     std::mt19937 engine;
     std::uniform_int_distribution<int> random_w;
     std::uniform_int_distribution<int> random_h;
+    std::condition_variable foodIsEaten;
+    std::mutex bonusFoodMutex;
 
     int score{0};
 
     void PlaceFood();
     void generateScreenContext(Snake const& snake, SDL_Point const& food);
+    void BonusFoodTimer();
+    void PlaceBonusFood();
 };
 
 #endif
